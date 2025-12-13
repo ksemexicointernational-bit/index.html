@@ -59,11 +59,32 @@ setInterval(() => {
 function draw() {
   ctx.clearRect(0, 0, 400, 400);
 
-  // Pez
+  // Pez (forma de pez)
+  ctx.save();
+  ctx.translate(fish.x, fish.y);
+
+  // cuerpo
   ctx.fillStyle = '#ffd166';
   ctx.beginPath();
-  ctx.arc(fish.x, fish.y, 10, 0, Math.PI * 2);
+  ctx.ellipse(0, 0, 14, 9, 0, 0, Math.PI * 2);
   ctx.fill();
+
+  // cola
+  ctx.fillStyle = '#f4a261';
+  ctx.beginPath();
+  ctx.moveTo(-14, 0);
+  ctx.lineTo(-22, -6);
+  ctx.lineTo(-22, 6);
+  ctx.closePath();
+  ctx.fill();
+
+  // ojo
+  ctx.fillStyle = '#000';
+  ctx.beginPath();
+  ctx.arc(6, -2, 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
 
   // Corales
   ctx.fillStyle = '#ff6f61';
