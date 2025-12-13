@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=400, height=600, initial-scale=1.0, user-scalable=no" />
+<title>Flappy Fish KSE</title>
+<style>
+  body { margin:0; background:#0b3c5d; display:flex; justify-content:center; }
+  canvas { background: linear-gradient(#0b5fa5, #012f4b); display:block; }
+  .overlay {
+    position:absolute; width:400px; height:600px; display:flex;
+    flex-direction:column; justify-content:center; align-items:center;
+    color:#fff; font-family:Arial, sans-serif; text-align:center;
+  }
+  button {
+    margin-top:15px; padding:10px 16px; border:none; border-radius:8px;
+    background:#00c2b8; color:#003333; font-weight:bold; cursor:pointer;
+  }
+</style>
+</head>
+<body>
+<div style="position:relative; width:400px; height:600px;">
+  <canvas id="game" width="400" height="600"></canvas>
+  <div id="gameOver" class="overlay" style="display:none; background:rgba(0,0,0,.6);">
+    <h2>Game Over</h2>
+    <p>Puntaje: <span id="finalScore"></span></p>
+    <button onclick="location.reload()">Reintentar</button>
+    <button onclick="window.open('https://www.ksemexico.com.mx','_blank')">Conoce nuestro catálogo de peces y corales</button>
+  </div>
+</div>
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+let bird = { x:80, y:300, v:0 };
+let pipes = [];
+let score = 0;
+let gameOver = false;
+
+function jump(){ if(!gameOver) bird.v = -7; }
+canvas.addEventListener('click', jump);
+document.addEventListener('keydown', e=>{ if(e.code==='Space') jump(); });
+
+function addPipe(){
+  let gap = 150;
+  let top = Math.random()*250 + 50;
+  pipes.push({ x:400, top, bottom: top+gap });
+}
+setInterval(()=>{ if(!gameOver) addPipe(); }, 1600);
+
+function draw(){
+  ctx.clearRect(0,0,400,600);
+
+  // Pez
+  ctx.fillStyle='#ffd166';
+  ctx.beginPath();
+  ctx.arc(bird.x,bird.y,12,0,Math.PI*2);
+  ctx.fill();
+
+  // Corales
+  ctx.fillStyle='#ff6f61';
+  pipes.forEach(p=>{
+    ctx.fillRect(p.x,0,40,p.top);
+    ctx.fillRect(p.x,p.bottom,40,600-p.bottom);
+  });
+
+  // Texto
+  ctx.fillStyle='#fff';
+  ctx.font='16px Arial';
+  ctx.fillText('KSE MÉXICO', 10, 20);
+  ctx.fillText('Puntaje: '+score, 300, 20);
+}
+
+function update(){
+  if(gameOver) return;
+  bird.v += 0.4;
+  bird.y += bird.v;
+
+  pipes.forEach(p=>{
+    p.x -= 2.5;
+    if(p.x === bird.x) score++;
+    if(bird.x>p.x && bird.x<p.x+40 && (bird.y<p.top || bird.y>p.bottom)) endGame();
+  });
+
+  pipes = pipes.filter(p=>p.x>-50);
+  if(bird.y>600 || bird.y<0) endGame();
+}
+
+function endGame(){
+  gameOver = true;
+  document.getElementById('finalScore').innerText = score;
+  document.getElementById('gameOver').style.display='flex';
+}
+
+function loop(){ draw(); update(); requestAnimationFrame(loop); }
+loop();
+</script>
+</body>
+</html>
